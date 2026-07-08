@@ -1,0 +1,2 @@
+# GriefSupportDB
+GriefSupportDB is the reference implementation of an enterprise relational database architecture for grief support organizations. Developed from real-world operational experience, it models the business processes of client services, volunteer management, facilitator credentialing, fundraising, training, and organizational operations. The reference implementation is authored in SQL Server, with equivalent MySQL and PostgreSQL implementations planned to demonstrate platform portability while preserving a common business architecture.
