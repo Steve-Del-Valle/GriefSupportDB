@@ -15,10 +15,13 @@
 --
 --              Inserted in dependency order against a freshly created,
 --              empty database (Scripts 01-11 already run). IDENTITY values
---              are assumed to start at 1 and increment by 1 with no gaps,
---              so later sections reference earlier ContactID/StaffID/etc.
---              ranges by literal integer, consistent with the FK literals
---              already used in Script 07's Campaign/ScholarshipFund seed.
+--              are assumed to start at 1 and increment by 1 with no gaps.
+--              IMPORTANT: this script must succeed in a single run against
+--              a clean database. If any INSERT fails partway and is re-run,
+--              SQL Server's IDENTITY seed will still have advanced, shifting
+--              all subsequent hardcoded ID references out of alignment.
+--              If that happens, DROP and recreate the database rather than
+--              resuming mid-script.
 --
 --              ContactID map for reference while reading this script:
 --                1-5    Staff
@@ -33,6 +36,7 @@
 -- Version:     v5
 -- Author:      Steve Del Valle
 -- Dependencies: 01 through 11 must be run first
+--              
 -- =============================================================================
 
 USE GriefSupportDB;
@@ -252,7 +256,7 @@ VALUES
     (1, 1, 'Tyler',    'Combs',     '541-555-1017', 'tcombs@example.com',     '410 N Laurel St',  1, 37, '97520', 1, '2009-02-14', 1, 6, '2024-05-02', 1, '2024-05-02', 1),
     (1, 1, 'Wendy',    'Falk',      '541-555-1018', 'wfalk2@example.com',     '15 Almeda Dr',     6, 37, '97526', 1, '1991-09-09', 2, 6, '2024-08-14', 2, '2024-08-14', 2),
     (1, 1, 'Craig',    'Bell',      '541-555-1019', 'cbell@example.com',      '600 Crowson Rd',   1, 37, '97520', 1, '1988-04-04', 1, 6, '2024-09-05', 1, '2024-09-05', 1),
-    (7, 1, 'Diane',    'Whitmore-Ellis', '541-555-1020', NULL, '360 Clark Ave', 1, 37, '97520', 1, '1948-11-11', 2, 6, '2019-10-15', 1, '2019-10-15', 1);
+    (3, 1, 'Diane',    'Whitmore-Ellis', '541-555-1020', NULL, '360 Clark Ave', 1, 37, '97520', 1, '1948-11-11', 2, 6, '2019-10-15', 1, '2019-10-15', 1);
 GO
 
 INSERT INTO ClientInformation
@@ -266,7 +270,7 @@ VALUES
     (22, 1, 1, 1, '2020-08-01', 6, NULL, 1, 0, 0, 1),   -- Farah Odom
     (23, 1, 1, 1, '2023-04-02', 2, NULL, 1, 0, 1, 1),   -- Nathan Iverson (homicide loss)
     (24, 1, 1, 1, '2024-05-20', 1, NULL, 1, 0, 0, 1),   -- Colleen Marsh
-    (25, 1, 1, 1, '2024-02-10', 5, NULL, 0, 0, 0, 1),   -- Priscilla Colston (infant loss - InviteToGroups=0 per staff assessment)
+    (25, 1, 1, 1, '2024-02-10', 5, NULL, 0, 0, 0, 1),   -- Priscilla Colston
     (26, 1, 1, 1, '2024-02-10', 5, NULL, 0, 0, 0, 1),   -- Marco Colston
     (27, 1, 3, 1, '2023-10-14', 5, 3,    1, 0, 0, 1),   -- Tanya Reyes (teen)
     (28, 1, 1, 1, '2022-01-05', 6, NULL, 1, 0, 0, 1),   -- Louise Trent
@@ -303,9 +307,7 @@ VALUES
     (28, 1, 1, 1, 1, 11, 1, 0, '2022-01-05', 'Referred by a friend who is a former client.', 1),
     (30, 1, 2, 1, 1, 3, 1, 0, '2023-01-08', 'Referred by therapist following on-duty loss of colleague; suicide.', 2),
     (10, 5, 3, NULL, NULL, 11, NULL, 0, '2022-02-14', 'Initial volunteer inquiry call; interested in BST.', 3),
-    (15, 5, 3, NULL, NULL, 13, NULL, 0, '2024-01-08', 'Found volunteer opportunity through website.', 3),
-    (39, 10, 4, NULL, NULL, NULL, NULL, 1, '2023-11-01', 'Brief stewardship check-in call.', 4),
-    (44, 10, 4, NULL, NULL, NULL, NULL, 1, '2024-06-10', 'Thank-you call following major gift.', 4);
+    (15, 5, 3, NULL, NULL, 13, NULL, 0, '2024-01-08', 'Found volunteer opportunity through website.', 3);
 GO
 
 -- =============================================================================
@@ -433,6 +435,20 @@ VALUES
 GO
 
 -- =============================================================================
+-- SECTION 12b: DONOR STEWARDSHIP ENCOUNTERS
+-- Deferred from Section 8 - these reference ContactIDs 39/44 which don't
+-- exist until Section 12 (Donors) has run.
+-- =============================================================================
+
+INSERT INTO Encounter
+    (ContactID, EncounterTypeID, StaffID, ClientTypeID, ReferralTypeID, ReferralSourceID,
+     SeekingServicesForID, IsLightweight, EncounterDate, EncounterNotes, CreatedByStaffID)
+VALUES
+    (39, 10, 4, NULL, NULL, NULL, NULL, 1, '2023-11-01', 'Brief stewardship check-in call.', 4),
+    (44, 10, 4, NULL, NULL, NULL, NULL, 1, '2024-06-10', 'Thank-you call following major gift.', 4);
+GO
+
+-- =============================================================================
 -- SECTION 13: PAYMENTS AND PAYMENT ALLOCATIONS
 -- A mix of donations (general, campaign-designated, scholarship-designated)
 -- and program fees (group fee, BST fee with and without scholarship).
@@ -518,10 +534,10 @@ INSERT INTO OutreachEvent (EventTypeID, EventName, EventDescription, EventDate, 
 GO
 
 INSERT INTO OutreachEventAttendance (EventID, ContactID, AttendanceDate) VALUES
-    (3, 15, '2024-01-20'),   -- Renee Okafor attended the info session before becoming a volunteer
-    (3, 18, '2024-01-20'),   -- Diego Salcedo attended before applying
-    (4, 1,  '2024-09-21'),   -- Angela Alvarez attended the remembrance gathering
-    (4, 28, '2024-09-21');   -- Louise Trent attended
+    (3, 15, '2024-01-20'),
+    (3, 18, '2024-01-20'),
+    (4, 1,  '2024-09-21'),
+    (4, 48, '2024-09-21');   -- Peter Guzman attended
 GO
 
 -- =============================================================================
@@ -544,7 +560,7 @@ INSERT INTO Outcome (ClientID, OutcomeTypeID, OutcomeDate, OutcomeDescription) V
     (13, 3, '2020-02-01', 'Referred and enrolled into General Grief Support group; completed program successfully in Nov 2020.'),
     (10, 3, '2022-01-15', 'Referred and enrolled into Spouse & Partner Loss group; completed program successfully.'),
     (7,  1, '2024-02-12', 'Provided one-on-one referral to a specialized perinatal loss counselor given the sensitivity of the case.'),
-    (33, 6, '2021-05-15', 'Client needs exceeded scope of services; referred to an outside counseling agency.');
+    (15, 6, '2021-05-15', 'Client needs exceeded scope of services; referred to an outside counseling agency.');
 GO
 
 -- =============================================================================
@@ -552,7 +568,7 @@ GO
 -- Sanity-check row counts across every table populated by this script.
 -- =============================================================================
 
-SELECT 'ContactInformation' AS TableName, COUNT(*) AS RowCount FROM ContactInformation
+SELECT 'ContactInformation' AS TableName, COUNT(*) AS RecordCount FROM ContactInformation
 UNION ALL SELECT 'Staff', COUNT(*) FROM Staff
 UNION ALL SELECT 'BoardMember', COUNT(*) FROM BoardMember
 UNION ALL SELECT 'VolunteerInformation', COUNT(*) FROM VolunteerInformation
