@@ -111,11 +111,14 @@ BEGIN
 
     IF @AllocationSum <> @TotalAmount
     BEGIN
+        DECLARE @AllocationSumStr VARCHAR(20) = CONVERT(VARCHAR(20), @AllocationSum);
+        DECLARE @TotalAmountStr   VARCHAR(20) = CONVERT(VARCHAR(20), @TotalAmount);
+
         RAISERROR(
             'Allocation sum (%s) does not equal TotalAmount (%s). All funds must be allocated.',
             16, 1,
-            @AllocationSum,
-            @TotalAmount
+            @AllocationSumStr,
+            @TotalAmountStr
         );
         RETURN;
     END
@@ -610,10 +613,14 @@ BEGIN
 
     IF @AwardAmount > @Balance
     BEGIN
+        DECLARE @AwardAmountStr VARCHAR(20) = CONVERT(VARCHAR(20), @AwardAmount);
+        DECLARE @BalanceStr     VARCHAR(20) = CONVERT(VARCHAR(20), @Balance);
+
         RAISERROR(
             'Award amount $%s exceeds available fund balance of $%s.',
             16, 1,
-            @AwardAmount, @Balance
+            @AwardAmountStr,
+            @BalanceStr
         );
         RETURN;
     END
