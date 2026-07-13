@@ -114,7 +114,8 @@ BEGIN
         RAISERROR(
             'Allocation sum (%s) does not equal TotalAmount (%s). All funds must be allocated.',
             16, 1,
-            @AllocationSum, @TotalAmount
+            @AllocationSum,
+            @TotalAmount
         );
         RETURN;
     END
