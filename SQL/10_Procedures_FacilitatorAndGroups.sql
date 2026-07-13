@@ -15,7 +15,7 @@
 --              check requirements, and qualification gates that protect
 --              the safety and integrity of grief support groups.
 -- Version:     v5
--- Author:      Steve
+-- Author:      Steve Del Valle
 -- Dependencies: 01 through 09 must be run first
 -- =============================================================================
 
