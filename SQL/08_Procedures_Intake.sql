@@ -13,7 +13,7 @@
 --              These procedures enforce business rules at the database
 --              level rather than relying on application code.
 -- Version:     v5
--- Author:      Steve
+-- Author:      Steve Del Valle
 -- Dependencies: 01 through 07 must be run first
 -- =============================================================================
 
