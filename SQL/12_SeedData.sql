@@ -31,7 +31,7 @@
 --              FacilitatorID 7 is ContactID 2 (Program Director), the one
 --              staff member who is also a credentialed Facilitator.
 -- Version:     v5
--- Author:      Steve
+-- Author:      Steve Del Valle
 -- Dependencies: 01 through 11 must be run first
 -- =============================================================================
 
