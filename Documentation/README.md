@@ -266,6 +266,11 @@ See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 See [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md) for the reasoning behind
 the key architectural choices.
 
+See [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) for an honest account
+of the tradeoffs and fragility points in the current implementation —
+including what broke during seed data validation and what a production
+version would do differently.
+
 ---
 
 ## Repository structure
