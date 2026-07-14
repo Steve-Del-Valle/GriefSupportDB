@@ -365,7 +365,6 @@ CREATE TABLE LossType (
 
 INSERT INTO LossType (TypeName) VALUES
     ('Spouse / Partner Loss'),
-    ('Child Loss'),
     ('Parent Loss - Mother'),
     ('Parent Loss - Father'),
     ('Sibling Loss'),
