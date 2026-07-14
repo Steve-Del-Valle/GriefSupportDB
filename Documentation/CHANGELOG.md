@@ -9,6 +9,67 @@ business process being modeled.
 
 ---
 
+## Post-v5 — Seed Data Implementation & Validation
+
+**Theme:** *A schema is only proven once real data flows through it.*
+
+With the schema, stored procedures, and views complete, the next test
+was building realistic seed data and confirming the full script set
+(`01` through `12`) runs cleanly against a freshly created, empty
+database in a single pass. This phase surfaced three genuine defects
+that schema review alone would not have caught — the kind of bugs that
+only appear when a design is actually executed end to end.
+
+### What was found and fixed
+
+**RAISERROR cannot take a DECIMAL or a function call as a substitution
+parameter.**
+Two stored procedures (`usp_RecordPayment`, `usp_RecordScholarshipAward`)
+raised custom error messages using `%s` substitution with `DECIMAL(10,2)`
+variables passed directly. T-SQL rejects this — `RAISERROR` substitution
+arguments must be a literal or a variable of an accepted type, not a
+`DECIMAL` and not an inline `CONVERT()` expression. The fix: convert the
+decimal to a `VARCHAR` and assign it to its own variable first, then pass
+that variable to `RAISERROR`. A small syntax rule with no obvious error
+message pointing to the actual cause.
+
+**A lookup value that didn't exist.**
+Seed data for one client record referenced `ProfileStatusID = 7`,
+assuming a "Deceased" status existed in `ProfileStatus` at that ID.
+It didn't — `ProfileStatus` only defines Active, Inactive, Deceased,
+and Do Not Contact at IDs 1 through 4. (Confusingly, `ClientStatus` — a
+separate lookup — does have a Deceased status at ID 7, which is likely
+where the mismatch originated.) The single bad row caused the entire
+20-row `ContactInformation` batch insert for Section 7 to fail as one
+transaction, cascading into missing `ClientInformation` records and a
+chain of foreign key errors in every downstream section that referenced
+those clients.
+
+**Seed data section ordering violated its own foreign key dependencies.**
+Section 8 (Encounters) included two stewardship-call records referencing
+donor `ContactID`s that don't exist until Section 12 (Donors) runs.
+Encounters for donors were seeded four sections too early. Fixed by
+moving those two rows to a new section immediately following Donor
+creation.
+
+### Why this matters
+
+None of these three bugs were visible from reading the schema or the
+stored procedure code in isolation. They only surfaced by actually
+running the full script set against a clean database and reading the
+error messages that came back — the same discipline required in
+production: build it, run it, trust the error, fix the root cause,
+run it again from a clean state until it's provably correct.
+
+The seed data script (`12_SeedData.sql`) now runs start to finish
+against a freshly created, empty database with zero errors, populating
+all 72 tables with a fictional but operationally realistic dataset:
+50 contacts across every role, 20 clients with loss records and group
+enrollments, a full facilitator credentialing pipeline, split payment
+allocations, scholarship awards, and outreach event attendance.
+
+---
+
 ## v5 — Business Process Normalization
 
 **Theme:** *Model the business process, not the program name.*
