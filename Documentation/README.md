@@ -225,38 +225,41 @@ qualified Facilitator and Co-Facilitator in the lead seats.
 
 ## Schema overview
 
-The database contains 67 tables organized into logical groups:
+The database contains 72 tables. Approximate breakdown by logical group:
 
-| Group | Tables | Purpose |
-|---|---|---|
-| Core Profile | 10 | ContactInformation and related lookups |
-| Roles | 9 | Staff, BoardMember, Volunteer, Client, Donor |
-| Facilitator Credentialing | 3 | Facilitator pipeline and availability |
-| Programs and Groups | 6 | Peer support groups, meetings, attendance |
-| Transactional | 7 | Encounters, notes, outcomes, loss records |
-| Payments | 4 | Payment, allocation, fee schedule |
-| Campaigns and Scholarships | 3 | Fundraising campaigns, scholarship awards |
-| Outreach | 2 | Events and attendance |
-| Mailing | 2 | Preferences and types |
-| Configuration | 1 | Configurable business rules |
+| Group | Purpose |
+|---|---|
+| Core Profile | ContactInformation and related lookups |
+| Roles | Staff, BoardMember, Volunteer, Client, Donor |
+| Facilitator Credentialing | Facilitator pipeline and availability |
+| Programs and Groups | Peer support groups, meetings, attendance |
+| Transactional | Encounters, notes, outcomes, loss records |
+| Payments | Payment, allocation, fee schedule |
+| Campaigns and Scholarships | Fundraising campaigns, scholarship awards |
+| Outreach | Events and attendance |
+| Mailing | Preferences and types |
+| Configuration | Configurable business rules |
+
+*(A precise per-group table count is pending a recount against the
+current schema — the total of 72 is confirmed directly against the
+live database.)*
 
 ---
 
 ## Entity Relationship Diagram
 
-![GriefSupportDB ERD v5](erd/GriefSupportDB_ERD_v5.png)
-
-The `/erd` folder contains diagrams for each version of the schema,
-showing how the design evolved from the initial concept through five
-iterations.
+*ERD in progress — see `/erd` folder once published.*
 
 ---
 
 ## Evolution of the design
 
-This database was not designed in one sitting. It evolved through five
-documented versions, each driven by new questions, discovered gaps, or
-a clearer understanding of the business process being modeled.
+This database was not designed in one sitting. It evolved through
+several documented phases, each driven by new questions, discovered
+gaps, or a clearer understanding of the business process being
+modeled — including a full validation pass where the seed data and
+stored procedures were run end to end against a clean database and
+the defects that surfaced were fixed at the source.
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
@@ -274,26 +277,19 @@ GriefSupportDB/
 ├── CHANGELOG.md                Version history and what changed in each iteration
 ├── DESIGN_DECISIONS.md         Reasoning behind key architectural choices
 │
-├── sql/                        CREATE TABLE scripts in dependency order
+├── sql/                        Full build, run in order against a fresh database
 │   ├── 01_LookupTables.sql
 │   ├── 02_CoreProfile.sql
 │   ├── 03_RoleTables.sql
 │   ├── 04_TransactionalTables.sql
 │   ├── 05_FacilitatorTables.sql
 │   ├── 06_GroupAndProgramTables.sql
-│   └── 07_CampaignAndScholarshipTables.sql
-│
-├── seed/                       Realistic synthetic data for testing and demonstration
-│   └── (coming soon)
-│
-├── procedures/                 Stored procedures for key business workflows
-│   └── (coming soon)
-│
-├── views/                      Reporting views
-│   └── (coming soon)
-│
-├── queries/                    Sample analytical queries
-│   └── (coming soon)
+│   ├── 07_CampaignAndScholarshipTables.sql
+│   ├── 08_Procedures_Intake.sql
+│   ├── 09_Procedures_Payments.sql
+│   ├── 10_Procedures_FacilitatorAndGroups.sql
+│   ├── 11_Views_AnalyticalQueries.sql
+│   └── 12_SeedData.sql
 │
 ├── erd/                        Entity relationship diagrams for each version
 │   └── (coming soon)
@@ -312,11 +308,13 @@ GriefSupportDB/
 
 ## Technical details
 
-**Database platform:** Microsoft SQL Server  
-**Design tool:** dbdiagram.io (drafting) / Draw.io (final ERD)  
-**Language:** T-SQL  
-**Status:** Schema complete — seed data, stored procedures, views,
-and queries in progress
+**Database platform:** Microsoft SQL Server
+**Design tool:** dbdiagram.io (drafting) / Draw.io (final ERD)
+**Language:** T-SQL
+**Status:** Schema, stored procedures, views, and seed data complete.
+Scripts `01` through `12` run in sequence against a freshly created,
+empty database with zero errors, populating all 72 tables with a
+realistic synthetic dataset.
 
 ---
 
@@ -345,5 +343,3 @@ The organization this database was designed for is real. The operational
 problems it addresses are real. The design decisions were made by
 someone who spent years inside those problems before sitting down to
 solve them.
-
-
