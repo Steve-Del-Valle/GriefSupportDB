@@ -317,21 +317,21 @@ GO
 
 INSERT INTO Loss (ClientID, DeceasedID, LossTypeID, LossDate, DeceasedRelationship, CreatedByStaffID) VALUES
     (1,  1, 1,  '2023-08-14', 'Husband',  1),   -- Angela Alvarez / Thomas Alvarez, spouse loss
-    (2,  3, 2,  '2024-01-30', 'Son',      1),   -- Ben Park / Ethan Park, child loss
-    (3,  3, 5,  '2024-01-30', 'Brother',  1),   -- Ji-woo Park / Ethan Park, sibling loss
+    (2,  3, 6,  '2024-01-30', 'Son',      1),   -- Ben Park / Ethan Park, bereaved parent
+    (3,  3, 4,  '2024-01-30', 'Brother',  1),   -- Ji-woo Park / Ethan Park, sibling loss
     (4,  5, 1,  '2020-07-07', 'Husband',  1),   -- Farah Odom / Walter Odom, spouse loss
-    (5,  6, 10, '2023-03-25', 'Brother',  1),   -- Nathan Iverson / Samuel Iverson, homicide loss
+    (5,  6, 9,  '2023-03-25', 'Brother',  1),   -- Nathan Iverson / Samuel Iverson, homicide loss
     (6,  7, 1,  '2024-05-11', 'Wife',     1),   -- Colleen Marsh / Bethany Marsh, spouse loss
-    (7,  8, 2,  '2024-02-02', 'Daughter', 1),   -- Priscilla Colston / Infant Colston, child (infant) loss
-    (8,  8, 2,  '2024-02-02', 'Daughter', 1),   -- Marco Colston / Infant Colston, child (infant) loss
-    (9,  4, 5,  '2022-11-19', 'Sister',   1),   -- Tanya Reyes / Grace Odom, sibling loss
+    (7,  8, 6,  '2024-02-02', 'Daughter', 1),   -- Priscilla Colston / Infant Colston, bereaved parent
+    (8,  8, 6,  '2024-02-02', 'Daughter', 1),   -- Marco Colston / Infant Colston, bereaved parent
+    (9,  4, 4,  '2022-11-19', 'Sister',   1),   -- Tanya Reyes / Grace Odom, sibling loss
     (10, 10, 1, '2021-12-24', 'Husband',  1),   -- Louise Trent / Louis Trent, spouse loss
-    (11, 11, 2, '2024-06-18', 'Daughter', 1),   -- Hana Nakamura / Patricia Nakamura, child loss
-    (12, 12, 9, '2023-01-05', 'Colleague',1),   -- Ray Delacroix / Owen Delacroix, suicide loss
-    (13, 14, 3, '2019-10-08', 'Mother',   1),   -- Chelsea Whitmore / Diane Whitmore, parent (mother) loss
-    (14, 9,  11,'2023-09-30', 'Dog',      1);   -- Omar Siddiqui / Biscuit, pet loss
+    (11, 11, 6, '2024-06-18', 'Daughter', 1),   -- Hana Nakamura / Patricia Nakamura, bereaved parent
+    (12, 12, 8, '2023-01-05', 'Colleague',1),   -- Ray Delacroix / Owen Delacroix, suicide loss
+    (13, 14, 2, '2019-10-08', 'Mother',   1),   -- Chelsea Whitmore / Diane Whitmore, parent loss (mother)
+    (14, 9,  10,'2023-09-30', 'Dog',      1);   -- Omar Siddiqui / Biscuit, pet loss
 GO
-
+    
 -- =============================================================================
 -- SECTION 10: CLIENT GROUP ENROLLMENT
 -- =============================================================================
