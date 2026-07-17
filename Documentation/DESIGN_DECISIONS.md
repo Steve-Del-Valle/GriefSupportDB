@@ -239,6 +239,50 @@ than containing hardcoded values.
 
 ---
 
+## Relationships are recorded, not valued
+
+**Decision:** `DeceasedRelationship` on `Loss` records the relationship
+between the deceased and the client — spouse, parent, sibling, pet,
+unborn child, aunt, uncle, colleague, friend — without any field or
+logic implying how significant that relationship was to the client.
+`NULL` is reserved exclusively for a relationship that is genuinely
+unknown or not yet documented. It is never used as a stand-in for a
+relationship the schema's author, or society more broadly, might be
+tempted to treat as lesser.
+
+**Why:** Early in this project, pet loss was handled by setting
+`DeceasedRelationship` to `NULL` — the reasoning at the time was that a
+pet "doesn't get a human relationship value." That was a mistake. A pet
+can be someone's closest companion. An aunt or uncle can have been a
+child's primary caregiver. The loss of a pregnancy or a stillbirth is
+a real, often profoundly under-acknowledged grief. None of these
+relationships are less real for falling outside a narrow definition of
+immediate family, and a database that goes quiet exactly where a
+relationship doesn't fit a conventional category is, in its own small
+way, repeating the same failure to see the whole person that this
+project exists to correct.
+
+The fix was to treat every relationship the same way structurally:
+`LossTypeID` and `DeceasedRelationship` are chosen together and
+validated against each other (a "Spouse Loss" record can't end up
+paired with "Daughter" as the relationship), pet loss and pregnancy
+loss both get real, specific relationship values rather than an
+absence of one, and the relationship vocabulary was broadened to
+include aunt, uncle, and other roles that carry no less weight for
+being outside the nuclear family.
+
+The database's job is to record *what* the relationship was. It is
+explicitly not the database's job to imply *how much it mattered* —
+that judgment belongs to the client's own narrative, captured in
+`Note` and `Encounter` records, not inferred from a relationship code.
+An aunt who raised a child after a parent's death and a distant
+acquaintance are both recorded the same way at the schema level:
+as "Aunt." The difference between them is a story staff will learn
+and document, not something a lookup table should presume to know
+in advance.
+
+---
+
 ## Model the business process, not the program name
 
 **Decision:** All lookups and table names model the organizational

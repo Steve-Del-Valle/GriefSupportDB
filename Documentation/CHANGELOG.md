@@ -9,7 +9,105 @@ business process being modeled.
 
 ---
 
-## Post-v5 — Seed Data Implementation & Validation
+## Post-v5 — Relationships Are Recorded, Not Valued
+
+**Theme:** *NULL should mean "unknown," never "a relationship this schema didn't think to honor."*
+
+Reviewing how pet loss was represented turned up a real design flaw:
+`DeceasedRelationship` was set to `NULL` for pet loss, on the reasoning
+that a pet "doesn't get a human relationship value." That reasoning was
+wrong, and worth correcting explicitly rather than quietly patching.
+
+### What changed
+
+**Pet loss now gets a real relationship value.**
+`DeceasedRelationship` for `LossTypeID = 10` (Pet / Animal Companion
+Loss) is now `'Pet / Animal Companion'` — a documented relationship,
+not an absence of one. `LossTypeID` and `DeceasedRelationship` are now
+chosen together rather than independently in both the seed data and
+the Python generator, which also fixed a separate correctness bug: an
+independently-random relationship could previously produce nonsensical
+pairings like "Spouse / Partner Loss" recorded with "Daughter" as the
+relationship.
+
+**"Pregnancy Loss / Stillbirth" added to `LossType`.**
+Added as `TypeID = 17`, appended at the end of the existing
+`LossType` values to avoid renumbering the 16 already in use. Pairs
+with the relationship value `'Unborn Child'`.
+
+**Relationship vocabulary broadened.**
+`Aunt` and `Uncle` added to the general relationship pool used by loss
+types that don't imply a specific family role (Suicide Loss, Homicide
+Loss, Divorce, Aging and Loss, and others). An aunt or uncle can be a
+primary caregiver or a person's closest relationship; the schema
+shouldn't imply otherwise by omission.
+
+**New design principle documented.**
+See DESIGN_DECISIONS.md, "Relationships are recorded, not valued" —
+the database records what a relationship was; it never implies how
+much that relationship mattered. That judgment belongs in the client's
+narrative, captured in `Note` and `Encounter` records, not inferred
+from a relationship code or a missing one.
+
+### Design principle established
+> *A database that goes quiet exactly where a relationship doesn't fit a conventional category repeats the failure it exists to correct.*
+
+---
+
+
+
+**Theme:** *The most recent loss and the loss someone needs help with right now are not always the same thing.*
+
+Working through the seed data revealed a real gap: the schema could
+record that a client had experienced a loss, but had no way to say
+*which* loss — of possibly several, at very different points in time —
+was the one actually driving their need for support today. A loss from
+years ago can resurface as the active concern long after a more recent
+loss has occurred. The schema needed to represent that directly rather
+than leaving it to be inferred from context.
+
+### What changed
+
+**`Loss.IsPrimaryConcern` added.**
+A `BIT` flag, default 0, marking which of a client's loss records is
+currently their active concern. A filtered unique index
+(`UQ_Loss_OnePrimaryPerClient`) enforces that at most one loss per
+client can hold this flag at a time, structurally rather than by
+convention. The flag is intentionally mutable — it can move from one
+`Loss` record to another as a client's circumstances change, without
+touching `LossDate` or any other historical fact about the loss itself.
+
+**`Encounter.LossID` added.**
+A nullable foreign key to `Loss`, identifying which specific loss a
+given encounter concerned. Nullable because most encounter types —
+a donor stewardship call, a volunteer inquiry — aren't about a loss at
+all. This is deliberately the *reverse* relationship from the existing
+`Loss.EncounterID` column: that column fixes the one encounter where a
+loss was first disclosed, a fact that never changes. `Encounter.LossID`
+lets any later encounter, however much time has passed, point back to
+that same loss again if it resurfaces — or point at a different loss
+entirely if that's what the conversation was actually about.
+
+**Seed data now demonstrates the pattern explicitly.**
+`12_SeedData.sql` Section 9 gives one client two losses at very
+different times — a spouse's death in 2023 and a parent's death in
+2019 — and marks the *older* one as the current primary concern.
+Section 9b adds a new, recent `Encounter` whose `LossID` points at that
+older loss, so the connection is explicit in the data rather than
+something a reader has to piece together from dates. The Python
+generator (`generate_griefsupportdb_seed.py`) implements the same
+pattern programmatically: every client can now have 1-3 losses spread
+across a 15-year window, and a dedicated step (Section 9b in the
+generator) randomly selects one loss per client as their primary
+concern — deliberately not always the most recent — and creates a
+matching recent encounter referencing it.
+
+### Design principle reinforced
+> *Model what actually happens, not just what happened most recently.*
+
+---
+
+
 
 **Theme:** *A schema is only proven once real data flows through it.*
 
