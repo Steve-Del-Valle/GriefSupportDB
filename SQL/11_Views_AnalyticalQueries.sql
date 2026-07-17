@@ -15,7 +15,7 @@
 --              the bottom cover the "how are we doing over time" questions
 --              that don't belong permanently in the schema.
 -- Version:     v5
--- Author:      Steve Del Valle
+-- Author:      Steve
 -- Dependencies: 01 through 10 must be run first
 -- =============================================================================
 
@@ -620,5 +620,5 @@ SELECT
           AND p.PaymentDate >= DATEFROMPARTS(YEAR(GETDATE()), 1, 1))       AS YTDDonations,
     (SELECT COUNT(*) FROM ClientGroup cg
         JOIN EnrollmentStatus es ON es.StatusID = cg.EnrollmentStatusID
-        WHERE es.StatusName = 'Waitlist')                                   AS TotalWaitlisted;
+        WHERE es.StatusName = 'Waitlist')                                   AS WaitlistTotal;
 GO
