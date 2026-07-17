@@ -12,6 +12,35 @@ came before it.
 
 ---
 
+## Executive Summary
+
+GriefSupportDB is a modern SQL Server database architecture designed for grief support organizations. It replaces fragmented legacy systems with a unified relational model capable of managing clients, volunteers, facilitators, donors, programs, fundraising, and operational workflows in a single integrated platform.
+
+The project demonstrates:
+
+- Relational database architecture
+- Requirements analysis
+- Domain-driven data modeling
+- Stored procedures and analytical views
+- Synthetic data generation
+- Technical documentation
+- Legacy system modernization
+
+---
+
+## Key Features
+
+- 72-table normalized SQL Server schema
+- Purpose-built for grief support organizations
+- Versioned fee schedules
+- Split payment allocations
+- Date-ranged role history
+- Encounter-centric workflow
+- Searchable deceased records
+- Facilitator credentialing pipeline
+- Synthetic data generator
+- Analytical views and stored procedures
+
 ## Background
 
 ### Where this started
@@ -88,11 +117,7 @@ place.
 
 The intent was correct. The implementation was not.
 
-A consultant was hired to build it. He did not ask enough questions.
-He did not understand the domain. He did not use real operational
-scenarios to validate the design before building it. He built what
-he assumed the answer was rather than what the organization actually
-needed.
+The implementation highlighted a common systems development challenge: software can only reflect the quality of its requirements gathering and domain understanding. Although the chosen platform was capable for the most part, the resulting configuration did not fully capture the organization's operational workflows, leading to manual workarounds and post-deployment redesign.
 
 The problems Apricot introduced did not exist in a vacuum. This was
 a grief support organization. When the system had gaps, staff had
@@ -136,21 +161,32 @@ understood the cost of getting it wrong.
 
 ### Why this database exists
 
-The working name for this project was **GriefSupportDB** — Adaptive Intelligent Data
-Understanding System. The name was a deliberate response to the
-two siloed systems it was designed to replace. Giftworks and NEXiDU
-were the opposite of unified. GriefSupportDB was the vision of what a single,
-purpose-built system could be.
+GriefSupportDB began as a vision for a unified, purpose-built information
+system that could replace the disconnected legacy applications used by
+the organization. Giftworks and NEXiDU each solved part of the problem,
+but neither provided a complete operational picture. Staff were forced
+to move between systems, duplicate information, and rely on manual
+workarounds to bridge gaps in functionality.
 
-GriefSupportDB is the realization of that vision — a ground-up
-relational database design built from years of domain knowledge,
-direct operational observation, and careful analysis of what the
-previous systems could not do. Every design decision in this schema
-traces back to something that actually broke or failed in a real system
-serving real grieving people.
+This project was conceived as a response to those limitations. Rather
+than adapting software designed for another purpose, GriefSupportDB was
+designed from the ground up around the actual workflows of a grief
+support organization. Every major architectural decision was informed by
+years of operational experience, direct observation of staff workflows,
+and lessons learned from maintaining and extending the legacy systems.
+
+GriefSupportDB is the realization of that vision—a modern relational
+database architecture built to unify client services, volunteer
+management, facilitator credentialing, fundraising, outreach, and
+organizational operations within a single coherent data model.
+
+Every design decision in this schema traces back to something that
+actually broke, created unnecessary work, or failed to meet the needs of
+staff serving real grieving people.
 
 This project exists to demonstrate what that solution looks like when
-someone asks the right questions first.
+someone takes the time to understand the problem before designing the
+system and asks the right questions first.
 
 ---
 
@@ -258,8 +294,15 @@ This database was not designed in one sitting. It evolved through
 several documented phases, each driven by new questions, discovered
 gaps, or a clearer understanding of the business process being
 modeled — including a full validation pass where the seed data and
-stored procedures were run end to end against a clean database and
-the defects that surfaced were fixed at the source.
+stored procedures were run end to end against a clean database, the
+defects that surfaced were fixed at the source, and a Python generator
+was built to replace hand-written, hardcoded-ID seed data with one that
+captures every real generated key at insert time and threads it forward.
+
+To populate a fresh database, run `sql/01` through `sql/11` in order,
+then run `python/generate_griefsupportdb_seed.py` (recommended) or
+`sql/12_SeedData.sql` (the original hand-written reference version,
+documented in [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md)).
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
@@ -294,7 +337,11 @@ GriefSupportDB/
 │   ├── 09_Procedures_Payments.sql
 │   ├── 10_Procedures_FacilitatorAndGroups.sql
 │   ├── 11_Views_AnalyticalQueries.sql
-│   └── 12_SeedData.sql
+│   └── 12_SeedData.sql         Hand-written reference seed data (see KNOWN_LIMITATIONS.md)
+│
+├── python/                     Synthetic data generator — recommended way to
+│   │                           populate a fresh database (see below)
+│   └── generate_griefsupportdb_seed.py
 │
 ├── erd/                        Entity relationship diagrams for each version
 │   └── (coming soon)
@@ -311,6 +358,32 @@ GriefSupportDB/
 
 ---
 
+## Architecture picture
+
+Legacy Systems
+
+## Project Architecture
+
+Giftworks        NEXiDU
+      \          /
+       \        /
+    Legacy Systems
+            │
+            ▼
+  Operational Analysis
+            │
+            ▼
+     GriefSupportDB
+            │
+            ▼
+     Future Evolution
+   ├── REST API
+   ├── Web Application
+   ├── Mobile Application
+   ├── Dashboards
+   └── AI Assistant
+---
+
 ## Technical details
 
 **Database platform:** Microsoft SQL Server
@@ -320,6 +393,24 @@ GriefSupportDB/
 Scripts `01` through `12` run in sequence against a freshly created,
 empty database with zero errors, populating all 72 tables with a
 realistic synthetic dataset.
+
+---
+
+## Why SQL Server?
+
+This project demonstrates SQL Server features that influenced the design:
+
+The project demonstrates:
+
+- Identity columns
+- Stored procedures
+- Views
+- Foreign key constraints
+- CHECK constraints
+- Transactions
+- `OUTPUT INSERTED`
+- Window functions
+- Common Table Expressions (CTEs)
 
 ---
 
@@ -339,6 +430,38 @@ full analysis.
 
 ---
 
+## Future Roadmap / Planned Evolution
+### Version 1.1
+
+- ✅ Additional stored procedures
+- ✅ Expanded synthetic data scenarios
+
+### Version 2
+
+- ⬜ REST API
+- ⬜ Responsive Web application
+- ⬜ Mobile application for facilitators and outreach staf
+
+### Version 3
+
+- ⬜ Operational dashboards
+- ⬜ Executive reporting
+- ⬜ Power BI integration
+
+### Version 4
+
+- ⬜ AI-assisted search
+- ⬜ AI-assisted encounter summaries
+- ⬜ Decision support AI-supported reporting
+
+---
+
+## What I learned
+
+Building GriefSupportDB reinforced that successful information systems are driven by operational workflow rather than technology. Many of the project's most important architectural decisions came from observing how staff actually worked, identifying where legacy systems introduced friction, and redesigning the data model to better reflect real organizational processes.
+
+---
+
 ## About this project
 
 This is a portfolio project demonstrating database design, requirements
@@ -348,3 +471,9 @@ The organization this database was designed for is real. The operational
 problems it addresses are real. The design decisions were made by
 someone who spent years inside those problems before sitting down to
 solve them.
+
+---
+
+## About the Author
+
+This project reflects years of experience designing operational workflows, maintaining legacy information systems, documenting business processes, and translating real-world organizational needs into scalable technical solutions. It represents both a technical database project and a case study in requirements analysis, systems thinking, and software architecture.
