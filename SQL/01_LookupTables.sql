@@ -379,7 +379,8 @@ INSERT INTO LossType (TypeName) VALUES
     ('Divorce - Children and Families'),
     ('Divorce - Other'),
     ('Non-Death Loss'),
-    ('Other');
+    ('Other'),
+    ('Pregnancy Loss / Stillbirth');
 GO
 
 -- -----------------------------------------------------------------------------

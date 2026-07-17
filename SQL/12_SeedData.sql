@@ -313,25 +313,51 @@ GO
 -- =============================================================================
 -- SECTION 9: LOSS RECORDS
 -- Links clients to Deceased records seeded in Section 3.
+-- EncounterID links back to the intake call where each loss was first
+-- disclosed (Section 8's Encounter rows, IDs 1-12 in insertion order).
+-- IsPrimaryConcern marks which loss is currently active for that client —
+-- not always the most recent one. See Angela Alvarez below.
 -- =============================================================================
 
-INSERT INTO Loss (ClientID, DeceasedID, LossTypeID, LossDate, DeceasedRelationship, CreatedByStaffID) VALUES
-    (1,  1, 1,  '2023-08-14', 'Husband',  1),   -- Angela Alvarez / Thomas Alvarez, spouse loss
-    (2,  3, 6,  '2024-01-30', 'Son',      1),   -- Ben Park / Ethan Park, bereaved parent
-    (3,  3, 4,  '2024-01-30', 'Brother',  1),   -- Ji-woo Park / Ethan Park, sibling loss
-    (4,  5, 1,  '2020-07-07', 'Husband',  1),   -- Farah Odom / Walter Odom, spouse loss
-    (5,  6, 9,  '2023-03-25', 'Brother',  1),   -- Nathan Iverson / Samuel Iverson, homicide loss
-    (6,  7, 1,  '2024-05-11', 'Wife',     1),   -- Colleen Marsh / Bethany Marsh, spouse loss
-    (7,  8, 6,  '2024-02-02', 'Daughter', 1),   -- Priscilla Colston / Infant Colston, bereaved parent
-    (8,  8, 6,  '2024-02-02', 'Daughter', 1),   -- Marco Colston / Infant Colston, bereaved parent
-    (9,  4, 4,  '2022-11-19', 'Sister',   1),   -- Tanya Reyes / Grace Odom, sibling loss
-    (10, 10, 1, '2021-12-24', 'Husband',  1),   -- Louise Trent / Louis Trent, spouse loss
-    (11, 11, 6, '2024-06-18', 'Daughter', 1),   -- Hana Nakamura / Patricia Nakamura, bereaved parent
-    (12, 12, 8, '2023-01-05', 'Colleague',1),   -- Ray Delacroix / Owen Delacroix, suicide loss
-    (13, 14, 2, '2019-10-08', 'Mother',   1),   -- Chelsea Whitmore / Diane Whitmore, parent loss (mother)
-    (14, 9,  10,'2023-09-30', 'Dog',      1);   -- Omar Siddiqui / Biscuit, pet loss
+INSERT INTO Loss (ClientID, DeceasedID, LossTypeID, EncounterID, LossDate, DeceasedRelationship, IsPrimaryConcern, CreatedByStaffID) VALUES
+    (1,  1, 1,  1,    '2023-08-14', 'Husband',  0, 1),   -- Angela Alvarez / Thomas Alvarez, spouse loss — NOT her primary concern; see row 15
+    (2,  3, 6,  2,    '2024-01-30', 'Son',      1, 1),   -- Ben Park / Ethan Park, bereaved parent
+    (3,  3, 4,  3,    '2024-01-30', 'Brother',  1, 1),   -- Ji-woo Park / Ethan Park, sibling loss
+    (4,  5, 1,  4,    '2020-07-07', 'Husband',  1, 1),   -- Farah Odom / Walter Odom, spouse loss
+    (5,  6, 9,  5,    '2023-03-25', 'Brother',  1, 1),   -- Nathan Iverson / Samuel Iverson, homicide loss
+    (6,  7, 1,  6,    '2024-05-11', 'Wife',     1, 1),   -- Colleen Marsh / Bethany Marsh, spouse loss
+    (7,  8, 6,  7,    '2024-02-02', 'Daughter', 1, 1),   -- Priscilla Colston / Infant Colston, bereaved parent
+    (8,  8, 6,  NULL, '2024-02-02', 'Daughter', 1, 1),   -- Marco Colston / Infant Colston, bereaved parent
+    (9,  4, 4,  8,    '2022-11-19', 'Sister',   1, 1),   -- Tanya Reyes / Grace Odom, sibling loss
+    (10, 10, 1, 9,    '2021-12-24', 'Husband',  1, 1),   -- Louise Trent / Louis Trent, spouse loss
+    (11, 11, 6, NULL, '2024-06-18', 'Daughter', 1, 1),   -- Hana Nakamura / Patricia Nakamura, bereaved parent
+    (12, 12, 8, 10,   '2023-01-05', 'Colleague',1, 1),   -- Ray Delacroix / Owen Delacroix, suicide loss
+    (13, 14, 2, NULL, '2019-10-08', 'Mother',   1, 1),   -- Chelsea Whitmore / Diane Whitmore, parent loss (mother)
+    (14, 9,  10,NULL, '2023-09-30', 'Pet / Animal Companion', 1, 1),   -- Omar Siddiqui / Biscuit, pet loss
+    (1,  2, 2,  NULL, '2019-04-02', 'Mother',   1, 1);   -- Angela Alvarez / Nancy Alvarez, mother loss (2019) —
+                                                           -- an OLDER loss that has resurfaced as her CURRENT
+                                                           -- primary concern, five years after her husband's more
+                                                           -- recent death. This is LossID 15 (15th row inserted
+                                                           -- into a fresh Loss table). See Section 9b below.
 GO
-    
+
+-- =============================================================================
+-- SECTION 9b: CURRENT-CONCERN ENCOUNTER
+-- Demonstrates a loss from years earlier resurfacing as a client's active
+-- concern: Angela's mother died in 2019, well before her husband's death
+-- in 2023, but it's her mother's loss she's calling about now. LossID 15
+-- (the row added above) is what makes this connection explicit rather
+-- than something a reader has to infer from context.
+-- =============================================================================
+
+INSERT INTO Encounter
+    (ContactID, EncounterTypeID, StaffID, LossID, IsLightweight, EncounterDate, EncounterNotes, CreatedByStaffID)
+VALUES
+    (19, 1, 1, 15, 0, '2024-11-02',
+     'Angela reached out again, this time regarding grief connected to her mother''s death in 2019 rather than her husband''s more recent passing. She described this as the loss that feels most unresolved right now.',
+     1);
+GO
+
 -- =============================================================================
 -- SECTION 10: CLIENT GROUP ENROLLMENT
 -- =============================================================================
